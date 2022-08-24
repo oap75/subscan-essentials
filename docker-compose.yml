@@ -1,12 +1,11 @@
-version: "2.4"
+version: '3'
 
 services:
   subscan-api:
-    build: .
-    image: subscan/api
+    image: oap75/subscan-api:latest
     environment: &app_base
       MYSQL_HOST: mysql
-      MYSQL_PASS: 'helloload'
+      MYSQL_PASS: 'subsocial'
       # Name of the database subscan will connect to and use
       # this db must exist
       MYSQL_DB: 'subscan'
@@ -20,25 +19,31 @@ services:
     ports:
       - '4399:4399'
     networks:
-      - app_net
+      explorer:
+        ipv4_address: 172.28.1.3
+
   subscan-observer:
     environment:
       <<: *app_base
-    image: subscan/api
+    image: oap75/subscan-api:latest
     command: ["python","run.py","substrate"]
     networks:
-      - app_net
+      explorer:
+        ipv4_address: 172.28.1.4 
 
   subscan-static:
-    build:
-      context: ./ui
+    image: oap75/subscan-static:latest 
     environment:
       NODE_ENV: 'production'
     ports:
-      - '80:80'
+      - '3012:80'
     networks:
-      - app_net
+      explorer:
+        ipv4_address: 172.28.1.5        
 
 networks:
-  app_net:
-    external: true
+  explorer:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16 
